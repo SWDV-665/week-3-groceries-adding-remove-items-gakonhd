@@ -55,10 +55,12 @@ export class GroceryPage {
     return this.form.get('priceForm') as FormControl;
   }
 
+  // form validator for masking
   public form: FormGroup = this.fb.group({
     priceForm: [null, [Validators.required]],
   });
 
+  // mask the input to behave like currency
   private registerTextMask(inputElement: HTMLInputElement) {
     const numberMask = createNumberMask({
       prefix: '$ ',
