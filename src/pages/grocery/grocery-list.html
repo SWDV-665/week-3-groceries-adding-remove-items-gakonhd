@@ -25,7 +25,7 @@
   <button ion-button color="primary" (click)="AddItem()">Add Item</button>
 
   <ion-list>
-    <ion-item-sliding *ngFor="let i of items; let idx = index">
+    <ion-item-sliding *ngFor="let i of LoadItems(); let idx = index">
       <ion-item>
           <p style="display: inline-block;"><span ion-text color="dark">
             Item Order:
@@ -42,6 +42,9 @@
       </ion-item>
 
       <ion-item-options side="right">
+          <button ion-button color="secondary" (click)="modifyItem(i, idx)">
+            <ion-icon name="more"></ion-icon> Edit
+          </button>
           <button ion-button color="danger" (click)="deleteItem(i, idx)">
               <ion-icon name="trash"></ion-icon> Delete
           </button>

@@ -4,6 +4,8 @@ import { NavController } from 'ionic-angular';
 import { createTextMaskInputElement } from 'text-mask-core';
 import createNumberMask from 'text-mask-addons/dist/createNumberMask'
 import {GroceryItem} from '../../helperClasses/GroceryItem';
+import { AlertController } from 'ionic-angular';
+import { GroceriesProvider } from '../../providers/groceries/groceries';
 
 @Component({
   selector: 'page-grocery',
@@ -14,7 +16,8 @@ export class GroceryPage {
   quantity:number;
   price: string;
   items: GroceryItem[] =[];
-  constructor(public navCtrl: NavController, private fb: FormBuilder) {
+  constructor(public navCtrl: NavController, public alertCtrl: AlertController,
+              public groceriesSerivce: GroceriesProvider,  private fb: FormBuilder) {
 
   }
 
@@ -24,6 +27,10 @@ export class GroceryPage {
       return;
     }
     this.registerTextMask(value);
+  }
+
+  LoadItems(){
+    return this.groceriesSerivce.getItems()
   }
 
   AddItem(){
@@ -39,7 +46,7 @@ export class GroceryPage {
          this.quantity, 
          this.price
       );
-      this.items.push(groceryObject);
+      this.groceriesSerivce.addItem(groceryObject);
       this.name = "";
       this.quantity = 0;
       this.price = "";
@@ -47,8 +54,69 @@ export class GroceryPage {
   }
 
   deleteItem(item, idx){
-    this.items.splice(idx, 1);
+    this.groceriesSerivce.removeItem(idx)
     alert(`item ${item.name} deleted from the shopping list`);
+  }
+
+  modifyItem(item, idx){
+    this.showPrompt(item, idx);
+  }
+
+  showPrompt(item, idx) {
+    const prompt = this.alertCtrl.create({
+      title: `Edit: ${item.name}`,
+      message: `Please edit the properties for ${item.name}`,
+      inputs: [
+        {
+          name: 'name',
+          value: item.name, 
+          disabled: true, 
+          label: "Name"
+        },
+        {
+          name: 'price',
+          placeholder: `${item.price}`,
+          value: item.price , 
+          label: "Price"
+        },
+        {
+          label: 'Quantity',
+          name: 'quantity',
+          placeholder: `${item.quantity}`,
+          value: item.quantity
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          handler: data => {
+            console.log('Cancel clicked');
+          }
+        },
+        {
+          text: 'Save',
+          handler: newItem => {
+            // if (!isNaN(newItem.Price) && newItem.Price != ''){
+            //   var formatter = new Intl.NumberFormat('en-US', {
+            //     style: 'currency',
+            //     currency: 'USD',
+            //   });
+            //   item.price = `${formatter.format(newItem.Price)}`
+            // } 
+            
+            // if (!isNaN(newItem.Quantity) && newItem.Quantity != ''){
+            //   item.quantity = `${newItem.Quantity}`
+            // }
+
+            // if (newItem.ExpDate != undefined && newItem.ExpDate != ''){
+            //   item.expDate = `${newItem.ExpDate}`
+            // }
+            this.groceriesSerivce.editItem(newItem, idx)
+          }
+        }
+      ]
+    });
+    prompt.present();
   }
 
   get priceForm() {
